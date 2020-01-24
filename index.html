@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirror_Screen</title>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div id="film_container">
+        <img id="film_poster" src="">
+    </div>
+
+    <div id="form_container">
+        <form class="search_form">
+            <input class="input_box" type="text" name="film_keywords" placeholder="I'm feeling like some films"><br><br>
+            <input class="submit_button" type="submit" value="Submit">
+        </form>
+    </div>
+
+    <script>
+        $( ".search_form" ).submit((event) => {
+            event.preventDefault();
+
+            const QUERY_STRING = $(".input_box").first().val();
+            const API_KEY = '77bcb8668e691d702f0e6870eb117283';
+            const URL = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${QUERY_STRING}&page=1&include_adult=false`;
+
+            var result = $.get(URL, (data) => {
+                var i = 0;
+                var imgURL = "/img/404.jpg";
+                while (i < data.results.length && data.results[i].poster_path == null) {
+                    i += 1;
+                }
+
+                if (i < data.results.length) {
+                    const poster_path = data.results[i].poster_path;
+                    imgURL = `https://image.tmdb.org/t/p/original${poster_path}`;
+
+                } else {
+                    console.log(`No film has poster in this search result.`);
+                    console.log(data.results);
+                }
+
+                $("#film_poster").attr("src", imgURL);
+
+            }).fail((error) => {
+                console.log(error);
+                $("#film_poster").attr("src", "/img/404.jpg");
+            });
+
+            $(".search_form").addClass("search_form_active",500);
+            $(".input_box").addClass("input_box_active", 500);
+            $(".submit_button").addClass("submit_button_active", 500);
+
+            $("#film_container").css("display", "block");
+        });
+    </script>
+</body>
